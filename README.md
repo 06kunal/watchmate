@@ -2,9 +2,6 @@
 
 A backend API for an IMDB-like application built using **Django** and **Django REST Framework (DRF)**.
 
-This project is created while following the tutorial and reference repository:
-https://github.com/ShubhamSarda/IMDB-Clone-DRF
-
 The goal of this repository is **learning Django REST Framework and backend API development**.
 
 ---
