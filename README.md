@@ -1,4 +1,4 @@
-# IMDB Clone – Django REST Framework
+# WATCHMATE(IMDB Clone) – Django REST Framework
 
 A backend API for an IMDB-like application built using **Django** and **Django REST Framework (DRF)**.
 
@@ -25,11 +25,11 @@ cd <project-folder>
 ```
 
 ### Create & activate virtual environment
-bash
+```bash
 Copy code
 python -m venv venv
 source venv/bin/activate        # macOS / Linux
-# venv\Scripts\activate         # Windows
+venv\Scripts\activate         # Windows
 ```
 
 ### Install dependencies
@@ -39,25 +39,25 @@ pip install -r requirements.txt
 ```
 
 ### Apply database migrations
-bash
+```bash
 Copy code
 python manage.py migrate
 ```
 
 ### Create superuser (optional)
-bash
+```bash
 Copy code
 python manage.py createsuperuser
 ```
 
 ### Run the development server
-bash
+```bash
 Copy code
 python manage.py runserver
 ```
 
 Open in browser:
-cpp
+```cpp
 Copy code
 http://127.0.0.1:8000/
 ```
