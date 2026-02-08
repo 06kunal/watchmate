@@ -1,9 +1,12 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
 # from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework import mixins
 from rest_framework import generics
+from rest_framework import viewsets
+
 
 from watchlist_app.models import WatchList, StreamPlatform, Review
 from watchlist_app.api.serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
@@ -14,7 +17,7 @@ class ReviewCreate(generics.CreateAPIView):
     
     def perform_create(self, serializer):
         pk = self.kwargs.get('pk')
-        movie = WatchList.objects.get(pk=pk)
+        movie = WatchList.objects.get(pk=pk) #finding the movie for which we have to write a review. Serializer does not know for which movie we are creating the review. so we are passing this movie to serializer to let it know that this is the movie.
         
         serializer.save(Watchlist = movie)
        
@@ -58,6 +61,44 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
 #     def post(self, request, *args, **kwargs):
 #         return self.create(request, *args, **kwargs)
 
+
+
+#using ModelViewsets
+class StreamPlatformVS(viewsets.ModelViewSet):
+    """
+        A simple ViewSet for viewing and editing accounts.
+    """
+    queryset = StreamPlatform.objects.all()
+    serializer_class = StreamPlatformSerializer
+
+
+''' 
+# Cannot have the same classnmae as model name.
+class StreamPlatformVS(viewsets.ViewSet):
+    """
+        A simple ViewSet for listing or retrieving users.
+    """
+    def list(self, request):
+        queryset = StreamPlatform.objects.all()
+        serializer = StreamPlatformSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset = StreamPlatform.objects.all()
+        watchlist = get_object_or_404(queryset, pk=pk)
+        serializer = StreamPlatformSerializer(watchlist)
+        return Response(serializer.data)
+    
+    def create(self, request):
+        serializer = StreamPlatformSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)   
+        
+    #Similarly we can implement .destroy() function to delete. we just have to write the code and logic manually.     
+'''
 
 class StreamPlatformListAV(APIView):
     

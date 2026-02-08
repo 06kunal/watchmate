@@ -19,21 +19,7 @@ class WatchListSerializer(serializers.ModelSerializer):
         #fields = ['id', 'name', 'description']
         #exclude = ['name']
         
-# class StreamPlatformSerializer(serializers.ModelSerializer):
-    
-#     watchlist = WatchListSerializer(many=True, read_only=True)
-#     # watchlist = serializers.HyperlinkedRelatedField(
-#     #     many=True,
-#     #     read_only=True,
-#     #     view_name='movie-details'
-#     # )
-    
-#     class Meta:
-#         model = StreamPlatform
-#         fields = "__all__"
-
-       
-class StreamPlatformSerializer(serializers.HyperlinkedModelSerializer):
+class StreamPlatformSerializer(serializers.ModelSerializer):
     
     watchlist = WatchListSerializer(many=True, read_only=True)
     # watchlist = serializers.HyperlinkedRelatedField(
@@ -45,6 +31,20 @@ class StreamPlatformSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = StreamPlatform
         fields = "__all__"
+
+       
+# class StreamPlatformSerializer(serializers.HyperlinkedModelSerializer):
+    
+#     watchlist = WatchListSerializer(many=True, read_only=True)
+#     # watchlist = serializers.HyperlinkedRelatedField(
+#     #     many=True,
+#     #     read_only=True,
+#     #     view_name='movie-details'
+#     # )
+    
+#     class Meta:
+#         model = StreamPlatform
+#         fields = "__all__"
 
         
         
