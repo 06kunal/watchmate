@@ -117,3 +117,21 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+
+#by setting this global permission, only an authenticated user can access the links now. Earlier anyone has the access to the content but now one has to login to view anything. While adding a new setting, don't create a new REST_FRAMEWORK varibale, just add a "," and add the setting here only otherwise it will override the first one. Commenting this for now because we don't want the same permissions for every view class. 
+
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.IsAuthenticated',
+#     ]
+# }
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+    ]
+}
+

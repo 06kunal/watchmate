@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404
+from rest_framework.exceptions import ValidationError
+
 from rest_framework.response import Response
 from rest_framework import status
 # from rest_framework.decorators import api_view
@@ -6,20 +8,49 @@ from rest_framework.views import APIView
 from rest_framework import mixins
 from rest_framework import generics
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 
 from watchlist_app.models import WatchList, StreamPlatform, Review
 from watchlist_app.api.serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
+from watchlist_app.api.permissions import AdminOrReadOnly, ReviewUserOrReadOnly
+
+
+
 
 
 class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
     
+    
+    # We are adding get_queryset, even though not using the queryset directly because, createAPIView expects a queryset to exist internally. DRF throws an error because some internal logic depends on it.
+    
+    def get_queryset(self):
+        return Review.objects.all()
+    
     def perform_create(self, serializer):
         pk = self.kwargs.get('pk')
         movie = WatchList.objects.get(pk=pk) #finding the movie for which we have to write a review. Serializer does not know for which movie we are creating the review. so we are passing this movie to serializer to let it know that this is the movie.
         
-        serializer.save(Watchlist = movie)
+        #Checking if the user has already reviewed the movie.
+        review_user = self.request.user #getting the user from the request.
+        review_queryset = Review.objects.filter(Watchlist = movie, review_user = review_user)
+        
+        if review_queryset.exists(): 
+            raise ValidationError("You have alredy reviewed this show!")
+        
+        
+        
+        # After checking if the user hasn't already reviewed, we are updating the avg_rating and number of reviews. 
+        if movie.number_rating == 0:
+            movie.avg_rating = serializer.validated_data['rating']
+        else:
+            movie.avg_rating = (movie.avg_rating + serializer.validated_data['rating'])/2
+                   
+        movie.number_rating += 1    
+        movie.save() 
+
+        serializer.save(Watchlist = movie, review_user=review_user)
        
 
 
@@ -27,6 +58,8 @@ class ReviewCreate(generics.CreateAPIView):
 class ReviewList(generics.ListAPIView):
     #queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
+
     
     def get_queryset(self):
         pk = self.kwargs['pk']
@@ -36,7 +69,8 @@ class ReviewList(generics.ListAPIView):
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    
+    permission_classes = [ReviewUserOrReadOnly]
+
     
 
 
