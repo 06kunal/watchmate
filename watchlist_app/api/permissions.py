@@ -2,7 +2,7 @@ from rest_framework import permissions
 
 
 #creating a permission which will work like:if the user is admin, then he can edit anything otherwise it's read only. 
-class AdminOrReadOnly(permissions.IsAdminUser):
+class IsAdminOrReadOnly(permissions.IsAdminUser):
     # so if we use has_object_permission, we are specifically checking a particular object. For example, the individual review can be edit by only the user that created them. There it is useful. 
     # has_permission when we are generally checking if the user has permission to read or edit.
     
@@ -23,7 +23,7 @@ class AdminOrReadOnly(permissions.IsAdminUser):
     
 
 # Now creating a class such that only the user should have control over his review.
-class ReviewUserOrReadOnly(permissions.BasePermission):
+class IsReviewUserOrReadOnly(permissions.BasePermission):
     
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
@@ -31,5 +31,5 @@ class ReviewUserOrReadOnly(permissions.BasePermission):
             return True
         else:
             # Check permissions for write request
-            return request.user == obj.review_user
+            return request.user == obj.review_user or request.user.is_staff
         
