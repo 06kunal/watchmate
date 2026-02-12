@@ -136,8 +136,8 @@ REST_FRAMEWORK = {
 #     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
 #       'rest_framework.authentication.BasicAuthentication',
-#        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        #'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     
     'DEFAULT_THROTTLE_CLASSES': [
@@ -146,7 +146,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '1/day',
-        'user': '30/day'
+        'user': '3/day'
     }
 }
 
