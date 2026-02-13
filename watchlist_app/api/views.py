@@ -1,6 +1,5 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
-
 from rest_framework.response import Response
 from rest_framework import status
 # from rest_framework.decorators import api_view
@@ -9,19 +8,50 @@ from rest_framework import mixins
 from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle, ScopedRateThrottle
+from rest_framework import filters
+
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 from watchlist_app.models import WatchList, StreamPlatform, Review
 from watchlist_app.api.serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
 from watchlist_app.api.permissions import IsAdminOrReadOnly, IsReviewUserOrReadOnly
+from watchlist_app.api.throttling import ReviewCreateThrottle, ReviewListThrottle
+from watchlist_app.api.pagination import WatchListPagination, WatchListLOPagination, WatchListCPagination
 
 
 
+# Creating a class to find all the reviews from a particular user. 
+class UserReview(generics.ListAPIView):
+    serializer_class = ReviewSerializer
 
+    # def get_queryset(self):
+    #     username = self.kwargs['username']
+    #     return Review.objects.filter(review_user__username = username)
+        # So we have used review__username because review_user is a foreign key and it stors the primary key of the related objects. for example, if we pass a user instance that it will stores its primary key only. So we cannot use review_user because it only contains the pk not the username itself. so we user review_user__username to get the username from the user table.
+        
+    
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        
+        username = self.request.query_params.get('username', None)
+        queryset = Review.objects.filter(review_user__username=username)
+        return queryset
+
+        
+    
+    
+    
+    
 
 class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ReviewCreateThrottle]
     
     
     
@@ -61,6 +91,11 @@ class ReviewList(generics.ListAPIView):
     #queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     # permission_classes = [IsAuthenticated]
+    throttle_classes = [ReviewListThrottle, AnonRateThrottle]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['review_user__username', 'active']
+
+
 
     
     def get_queryset(self):
@@ -72,6 +107,10 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsReviewUserOrReadOnly]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'review-detail'
+
+    
 
     
 
@@ -179,6 +218,25 @@ class StreamPlatformDetailAV(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+
+
+#creting this class for testing filtering and searching.
+class WatchListGV(generics.ListAPIView):
+    queryset = WatchList.objects.all()
+    serializer_class = WatchListSerializer
+    #pagination_class = WatchListPagination
+    #pagination_class = WatchListLOPagination
+    pagination_class = WatchListCPagination
+    
+    
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_fields = ['title', 'platform__name']
+
+    # filter_backends = [filters.SearchFilter]
+    # search_fields = ['title', 'platform__name']
+    
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['avg_rating']
 
     
 
